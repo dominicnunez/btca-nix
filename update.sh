@@ -38,32 +38,20 @@ fetch_hash() {
   hash_to_sri "$hash"
 }
 
-# Update version.json with new version and hashes
+# Update version.json with new version and hash (single tarball for all platforms)
 update_version_file() {
   local new_version="$1"
 
   echo -e "${GREEN}Updating to version $new_version${NC}"
 
-  # Fetch hashes for all platforms
-  # REPLACE: Adjust platform names to match your binary source's naming convention
-  local hash_x86_64_linux hash_aarch64_linux hash_x86_64_darwin hash_aarch64_darwin
+  # Fetch single hash for npm tarball (contains all platform binaries)
+  local hash
+  hash=$(fetch_hash "$new_version")
 
-  hash_x86_64_linux=$(fetch_hash "$new_version" "linux-x64" "tar.gz")
-  hash_aarch64_linux=$(fetch_hash "$new_version" "linux-arm64" "tar.gz")
-  hash_x86_64_darwin=$(fetch_hash "$new_version" "darwin-x64" "zip")
-  hash_aarch64_darwin=$(fetch_hash "$new_version" "darwin-arm64" "zip")
-
-  # Update version.json
+  # Update version.json with single hash
   jq --arg version "$new_version" \
-     --arg x86_64_linux "$hash_x86_64_linux" \
-     --arg aarch64_linux "$hash_aarch64_linux" \
-     --arg x86_64_darwin "$hash_x86_64_darwin" \
-     --arg aarch64_darwin "$hash_aarch64_darwin" \
-     '.version = $version |
-      .hashes["x86_64-linux"] = $x86_64_linux |
-      .hashes["aarch64-linux"] = $aarch64_linux |
-      .hashes["x86_64-darwin"] = $x86_64_darwin |
-      .hashes["aarch64-darwin"] = $aarch64_darwin' \
+     --arg hash "$hash" \
+     '.version = $version | .hash = $hash' \
      "$VERSION_FILE" > "${VERSION_FILE}.tmp" && mv "${VERSION_FILE}.tmp" "$VERSION_FILE"
 
   echo -e "${GREEN}Successfully updated version.json${NC}"
