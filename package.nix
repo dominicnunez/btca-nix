@@ -19,8 +19,6 @@ let
   };
 
   isDarwin = stdenv.hostPlatform.isDarwin;
-  assetExt = if isDarwin then "zip" else "tar.gz";
-
   system = stdenv.hostPlatform.system;
   platform = platformMap.${system} or (throw "Unsupported system: ${system}");
   hash = versionInfo.hash;
