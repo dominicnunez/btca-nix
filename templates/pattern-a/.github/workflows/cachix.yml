@@ -1,0 +1,35 @@
+# Binary Cache Workflow
+#
+# SETUP REQUIRED:
+# 1. Create a Cachix cache at https://app.cachix.org
+# 2. Add CACHIX_AUTH_TOKEN to repository secrets
+# 3. REPLACE 'myapp' with your actual cache name below
+
+name: Cachix - Binary Cache
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-cache:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: myapp  # REPLACE: Your Cachix cache name
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+
+      - name: Build and push to cache
+        run: cachix watch-exec myapp -- nix build  # REPLACE: Your Cachix cache name

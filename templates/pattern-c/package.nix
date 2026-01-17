@@ -2,13 +2,17 @@
   lib,
   stdenv,
   fetchurl,
-  autoPatchelfHook,
+  makeWrapper,
+  # REPLACE: Add runtime dependencies as needed
+  # Example: procps, bubblewrap, socat for sandboxing
 }:
 
 let
   versionInfo = lib.importJSON ./version.json;
   version = versionInfo.version;
-  # Map Nix system to binary asset platform suffix
+  hashes = versionInfo.hashes;
+
+  # Map Nix system to binary platform suffix
   # REPLACE: Adjust values to match your binary source's naming convention
   platformMap = {
     "x86_64-linux" = "linux-x64";
@@ -17,18 +21,26 @@ let
     "aarch64-darwin" = "darwin-arm64";
   };
 
+  # REPLACE: Set your manifest/binary base URL
+  baseUrl = "https://storage.example.com/myapp-releases";
+
   isDarwin = stdenv.hostPlatform.isDarwin;
+  isLinux = stdenv.hostPlatform.isLinux;
+
   system = stdenv.hostPlatform.system;
   platform = platformMap.${system} or (throw "Unsupported system: ${system}");
-  hash = versionInfo.hash;
+  hash = hashes.${system} or (throw "No hash for system: ${system}");
 
-  # npm registry tarball URL (single tarball contains all platform binaries)
+  # REPLACE: Adjust URL pattern to match your binary source
+  # Common patterns:
+  #   ${baseUrl}/${version}/${platform}/binary
+  #   ${baseUrl}/v${version}/myapp-${platform}.tar.gz
   src = fetchurl {
-    url = "https://registry.npmjs.org/btca/-/btca-${version}.tgz";
+    url = "${baseUrl}/${version}/${platform}/myapp";
     inherit hash;
   };
 
-  # Home Manager detection wrapper script (macOS only)
+  # Home Manager detection wrapper script
   wrapperScript = ''
     #!/usr/bin/env bash
 
@@ -54,7 +66,7 @@ let
           local link_target
           link_target="$(readlink "$symlink_path" 2>/dev/null || echo "")"
           # Match exact current path OR any older version of this package
-          # REPLACE: Change -myapp- to match your pname (e.g., -vscode-, -opencode-)
+          # REPLACE: Change -myapp- to match your pname
           if [[ "$link_target" == "$binary_path" ]] || \
              [[ "$link_target" == /nix/store/*-myapp-* ]]; then
             rm -f "$symlink_path"
@@ -86,54 +98,43 @@ let
   '';
 in
 stdenv.mkDerivation {
-  pname = "btca";
-  inherit version src;
+  pname = "myapp";
+  inherit version;
 
-  sourceRoot = ".";
+  # Source is a single binary file, not an archive
+  # REPLACE: If your source is an archive (tar.gz, zip), remove dontUnpack
+  # and add appropriate unpackPhase
+  dontUnpack = true;
 
-  nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [
-    autoPatchelfHook
+  nativeBuildInputs = [
+    makeWrapper
   ];
 
-  # autoPatchelfHook will find required libraries automatically
-  # Add any additional build inputs here if needed
-  buildInputs = [ ];
-
-  dontStrip = true;
-
-  unpackPhase = ''
-    runHook preUnpack
-    tar -xzf $src
-    runHook postUnpack
-  '';
-
   installPhase = ''
-    runHook preInstall
-    mkdir -p $out/bin
+        runHook preInstall
 
-    ${
-      if isDarwin then
-        ''
-                # macOS: Install unwrapped binary and wrapper script
-                cp package/dist/btca-${platform} $out/bin/.myapp-unwrapped
-                chmod +x $out/bin/.myapp-unwrapped
+        mkdir -p $out/bin
 
-                # Install wrapper script with Home Manager detection
-                cat > $out/bin/myapp << 'WRAPPER_EOF'
-          ${wrapperScript}
-          WRAPPER_EOF
-                chmod +x $out/bin/myapp
+        # Install the binary
+        # REPLACE: Adjust based on your source structure
+        # For single binary: install -m755 ${src} $out/bin/.myapp-unwrapped
+        # For archive: cp extracted/path/to/binary $out/bin/.myapp-unwrapped
+        install -m755 ${src} $out/bin/.myapp-unwrapped
 
-                # Substitute @out@ placeholder
-                substituteInPlace $out/bin/myapp --replace-quiet "@out@" "$out"
-        ''
-      else
-        ''
-          # Linux: Install binary directly (no wrapper needed)
-          cp package/dist/btca-${platform} $out/bin/btca
-          chmod +x $out/bin/btca
-        ''
-    }
+        # Install wrapper script with Home Manager detection
+        cat > $out/bin/myapp << 'WRAPPER_EOF'
+    ${wrapperScript}
+    WRAPPER_EOF
+        chmod +x $out/bin/myapp
+
+        # Substitute @out@ placeholder
+        substituteInPlace $out/bin/myapp --replace-quiet "@out@" "$out"
+
+    # REPLACE: Add wrapProgram if you need environment variables or PATH additions
+    # Example with runtime dependencies:
+    #   wrapProgram $out/bin/myapp \
+    #     --set SOME_ENV_VAR "value" \
+    #     --prefix PATH : ''${lib.makeBinPath [ some-package ]}
 
     runHook postInstall
   '';
@@ -142,7 +143,9 @@ stdenv.mkDerivation {
   meta = with lib; {
     description = "REPLACE WITH YOUR APP DESCRIPTION";
     homepage = "https://example.com";
-    license = licenses.mit; # REPLACE: Use appropriate license
+    # REPLACE: Use the upstream application's license
+    # licenses.mit, licenses.asl20, licenses.unfree, etc.
+    license = licenses.unfree;
     platforms = [
       "x86_64-linux"
       "aarch64-linux"

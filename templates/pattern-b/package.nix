@@ -3,11 +3,14 @@
   stdenv,
   fetchurl,
   autoPatchelfHook,
+  unzip,
 }:
 
 let
   versionInfo = lib.importJSON ./version.json;
   version = versionInfo.version;
+  hashes = versionInfo.hashes;
+
   # Map Nix system to binary asset platform suffix
   # REPLACE: Adjust values to match your binary source's naming convention
   platformMap = {
@@ -18,13 +21,15 @@ let
   };
 
   isDarwin = stdenv.hostPlatform.isDarwin;
+  assetExt = if isDarwin then "zip" else "tar.gz";
+
   system = stdenv.hostPlatform.system;
   platform = platformMap.${system} or (throw "Unsupported system: ${system}");
-  hash = versionInfo.hash;
+  hash = hashes.${system} or (throw "No hash for system: ${system}");
 
-  # npm registry tarball URL (single tarball contains all platform binaries)
+  # REPLACE: Update URL to match your binary source
   src = fetchurl {
-    url = "https://registry.npmjs.org/btca/-/btca-${version}.tgz";
+    url = "https://github.com/my-org/myapp/releases/download/v${version}/myapp-${platform}.${assetExt}";
     inherit hash;
   };
 
@@ -86,14 +91,18 @@ let
   '';
 in
 stdenv.mkDerivation {
-  pname = "btca";
+  pname = "myapp";
   inherit version src;
 
   sourceRoot = ".";
 
-  nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [
-    autoPatchelfHook
-  ];
+  nativeBuildInputs =
+    lib.optionals stdenv.hostPlatform.isLinux [
+      autoPatchelfHook
+    ]
+    ++ lib.optionals isDarwin [
+      unzip
+    ];
 
   # autoPatchelfHook will find required libraries automatically
   # Add any additional build inputs here if needed
@@ -103,7 +112,11 @@ stdenv.mkDerivation {
 
   unpackPhase = ''
     runHook preUnpack
-    tar -xzf $src
+    if [ "${lib.boolToString isDarwin}" = "true" ]; then
+      unzip -q $src
+    else
+      tar -xzf $src
+    fi
     runHook postUnpack
   '';
 
@@ -115,7 +128,7 @@ stdenv.mkDerivation {
       if isDarwin then
         ''
                 # macOS: Install unwrapped binary and wrapper script
-                cp package/dist/btca-${platform} $out/bin/.myapp-unwrapped
+                cp myapp $out/bin/.myapp-unwrapped
                 chmod +x $out/bin/.myapp-unwrapped
 
                 # Install wrapper script with Home Manager detection
@@ -130,8 +143,8 @@ stdenv.mkDerivation {
       else
         ''
           # Linux: Install binary directly (no wrapper needed)
-          cp package/dist/btca-${platform} $out/bin/btca
-          chmod +x $out/bin/btca
+          cp myapp $out/bin/myapp
+          chmod +x $out/bin/myapp
         ''
     }
 
