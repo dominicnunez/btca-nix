@@ -139,7 +139,7 @@ stdenv.mkDerivation {
 
   # REPLACE: Update meta attributes for your application
   meta = with lib; {
-    description = "REPLACE WITH YOUR APP DESCRIPTION";
+    description = "Better Context - search library source code for AI agents";
     homepage = "https://example.com";
     license = licenses.mit; # REPLACE: Use appropriate license
     platforms = [
