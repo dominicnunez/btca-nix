@@ -1,5 +1,5 @@
 {
-  description = "Nix flake for myapp - REPLACE WITH YOUR DESCRIPTION";
+  description = "Nix flake for btca (Better Context)";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
