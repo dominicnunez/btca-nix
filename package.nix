@@ -27,6 +27,14 @@ let
   platform = platformMap.${system} or (throw "Unsupported system: ${system}");
   hash = versionInfo.hash;
 
+  settingsJson = writeText "btca.config.json" (
+    builtins.toJSON (
+      lib.recursiveUpdate userSettings {
+        "$schema" = "https://btca.dev/btca.schema.json";
+      }
+    )
+  );
+
   # npm registry tarball URL (single tarball contains all platform binaries)
   src = fetchurl {
     url = "https://registry.npmjs.org/btca/-/btca-${version}.tgz";
