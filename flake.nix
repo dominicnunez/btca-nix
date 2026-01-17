@@ -28,7 +28,7 @@
       {
         packages = {
           default = pkgs.myapp;
-          myapp = pkgs.myapp;
+          btca = pkgs.btca;
         };
 
         apps = {
