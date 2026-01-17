@@ -29,9 +29,12 @@ let
 
   settingsJson = writeText "btca.config.json" (
     builtins.toJSON (
-      lib.recursiveUpdate userSettings {
+      lib.recursiveUpdate {
         "$schema" = "https://btca.dev/btca.schema.json";
-      }
+        model = "claude-haiku-4-5";
+        provider = "opencode";
+        resources = [ ];
+      } userSettings
     )
   );
 
