@@ -9,8 +9,6 @@
 let
   versionInfo = lib.importJSON ./version.json;
   version = versionInfo.version;
-  hashes = versionInfo.hashes;
-
   # Map Nix system to binary asset platform suffix
   # REPLACE: Adjust values to match your binary source's naming convention
   platformMap = {
@@ -25,7 +23,7 @@ let
 
   system = stdenv.hostPlatform.system;
   platform = platformMap.${system} or (throw "Unsupported system: ${system}");
-  hash = hashes.${system} or (throw "No hash for system: ${system}");
+  hash = versionInfo.hash;
 
   # npm registry tarball URL (single tarball contains all platform binaries)
   src = fetchurl {
