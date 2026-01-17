@@ -3,13 +3,16 @@
   stdenv,
   fetchurl,
   autoPatchelfHook,
+  userSettings ? { },
 }:
 
 let
+  # Note: version.json uses a single "hash" instead of per-platform "hashes" because
+  # the npm tarball contains all platform binaries in one archive (unlike GitHub releases
+  # which typically have separate downloads per platform).
   versionInfo = lib.importJSON ./version.json;
   version = versionInfo.version;
   # Map Nix system to binary asset platform suffix
-  # REPLACE: Adjust values to match your binary source's naming convention
   platformMap = {
     "x86_64-linux" = "linux-x64";
     "aarch64-linux" = "linux-arm64";
@@ -137,11 +140,10 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  # REPLACE: Update meta attributes for your application
   meta = with lib; {
     description = "Better Context - search library source code for AI agents";
     homepage = "https://btca.dev";
-    license = licenses.mit; # REPLACE: Use appropriate license
+    license = licenses.mit;
     platforms = [
       "x86_64-linux"
       "aarch64-linux"
