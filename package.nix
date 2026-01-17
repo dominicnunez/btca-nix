@@ -41,7 +41,7 @@ let
     inherit hash;
   };
 
-  # Home Manager detection wrapper script (macOS only)
+  # Home Manager detection wrapper script
   wrapperScript = ''
     #!/usr/bin/env bash
 
@@ -90,11 +90,53 @@ let
       [[ "$verbose" == "1" ]] && echo "[btca-nix] Created symlink: $symlink_path -> $binary_path" >&2
     }
 
+    config_dir="$HOME/.config/btca"
+    config_path="$config_dir/btca.config.jsonc"
+    mkdir -p "$config_dir"
+    hash_path="$config_dir/.nix-settings-hash"
+    tmp_config="$config_path.tmp"
+
+    jq_bin="${jq}/bin/jq"
+    nix_settings_path="@nix_settings_path@"
+
+    hash_file() {
+      if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "$1" | awk '{print $1}'
+      else
+        shasum -a 256 "$1" | awk '{print $1}'
+      fi
+    }
+
+    if [[ -f "$nix_settings_path" ]]; then
+      nix_settings_hash="$(hash_file "$nix_settings_path")"
+    else
+      nix_settings_hash=""
+    fi
+
+    if [[ -n "$nix_settings_hash" ]]; then
+      if [[ ! -f "$config_path" ]]; then
+        mkdir -p "$config_dir"
+        cp "$nix_settings_path" "$config_path"
+        printf "%s" "$nix_settings_hash" > "$hash_path"
+        [[ "$verbose" == "1" ]] && echo "[btca-nix] Seeded config at $config_path" >&2
+      else
+        existing_hash="$(cat "$hash_path" 2>/dev/null || true)"
+        if [[ "$existing_hash" != "$nix_settings_hash" ]]; then
+          mkdir -p "$config_dir"
+          "$jq_bin" -s '.[0] * .[1]' "$nix_settings_path" "$config_path" > "$tmp_config"
+          mv "$tmp_config" "$config_path"
+          printf "%s" "$nix_settings_hash" > "$hash_path"
+          [[ "$verbose" == "1" ]] && echo "[btca-nix] Merged Nix config into $config_path" >&2
+        fi
+      fi
+    fi
+
     # Run symlink management
     manage_symlink
 
     # Execute the actual binary
     exec "@out@/bin/.btca-unwrapped" "$@"
+
   '';
 in
 stdenv.mkDerivation {
@@ -120,34 +162,26 @@ stdenv.mkDerivation {
   '';
 
   installPhase = ''
-    runHook preInstall
-    mkdir -p $out/bin
+        runHook preInstall
+        mkdir -p $out/bin
 
-    ${
-      if isDarwin then
-        ''
-                # macOS: Install unwrapped binary and wrapper script
-                cp package/dist/btca-${platform} $out/bin/.btca-unwrapped
-                chmod +x $out/bin/.btca-unwrapped
+        # Install unwrapped binary
+        cp package/dist/btca-${platform} $out/bin/.btca-unwrapped
+        chmod +x $out/bin/.btca-unwrapped
 
-                # Install wrapper script with Home Manager detection
-                cat > $out/bin/btca << 'WRAPPER_EOF'
-          ${wrapperScript}
-          WRAPPER_EOF
-                chmod +x $out/bin/btca
+        # Install wrapper script
+        cat > $out/bin/btca << 'WRAPPER_EOF'
+    ${wrapperScript}
+    WRAPPER_EOF
+        chmod +x $out/bin/btca
 
-                # Substitute @out@ placeholder
-                substituteInPlace $out/bin/btca --replace-quiet "@out@" "$out"
-        ''
-      else
-        ''
-          # Linux: Install binary directly (no wrapper needed)
-          cp package/dist/btca-${platform} $out/bin/btca
-          chmod +x $out/bin/btca
-        ''
-    }
+        # Substitute @out@ placeholder
+        substituteInPlace $out/bin/btca --replace-quiet "@out@" "$out"
 
-    runHook postInstall
+        # Substitute Nix settings path placeholder
+        substituteInPlace $out/bin/btca --replace-quiet "@nix_settings_path@" "${settingsJson}"
+
+        runHook postInstall
   '';
 
   meta = with lib; {
