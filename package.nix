@@ -3,7 +3,6 @@
   stdenv,
   fetchurl,
   autoPatchelfHook,
-  unzip,
 }:
 
 let
@@ -92,13 +91,9 @@ stdenv.mkDerivation {
 
   sourceRoot = ".";
 
-  nativeBuildInputs =
-    lib.optionals stdenv.hostPlatform.isLinux [
-      autoPatchelfHook
-    ]
-    ++ lib.optionals isDarwin [
-      unzip
-    ];
+  nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [
+    autoPatchelfHook
+  ];
 
   # autoPatchelfHook will find required libraries automatically
   # Add any additional build inputs here if needed
@@ -108,11 +103,7 @@ stdenv.mkDerivation {
 
   unpackPhase = ''
     runHook preUnpack
-    if [ "${lib.boolToString isDarwin}" = "true" ]; then
-      unzip -q $src
-    else
-      tar -xzf $src
-    fi
+    tar -xzf $src
     runHook postUnpack
   '';
 
