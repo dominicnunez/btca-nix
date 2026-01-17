@@ -1,9 +1,9 @@
 # Binary Cache Workflow
 #
-# SETUP REQUIRED:
-# 1. Create a Cachix cache at https://app.cachix.org
-# 2. Add CACHIX_AUTH_TOKEN to repository secrets
-# 3. REPLACE 'btca-nix' with your actual cache name below
+# Cache: btca-nix.cachix.org
+# Public key: btca-nix.cachix.org-1:A4Ftfyl8BCpQ9OpwuHl4ILxLWMpUcyYnXg57ImNNOw0=
+#
+# SETUP REQUIRED: Add CACHIX_AUTH_TOKEN to repository secrets
 
 name: Cachix - Binary Cache
 
