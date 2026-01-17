@@ -18,8 +18,6 @@ This package includes sensible defaults so btca works out of the box:
 | `provider` | `opencode` |
 | `resources` | `[]` |
 
-You'll need an [OpenCode Zen API key](https://opencode.ai) to use the default provider.
-
 ## Profile Install
 
 Install btca to your user profile:
