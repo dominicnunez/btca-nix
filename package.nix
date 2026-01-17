@@ -3,6 +3,8 @@
   stdenv,
   fetchurl,
   autoPatchelfHook,
+  jq,
+  writeText,
   userSettings ? { },
 }:
 
