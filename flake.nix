@@ -27,7 +27,7 @@
       in
       {
         packages = {
-          default = pkgs.myapp;
+          default = pkgs.btca;
           btca = pkgs.btca;
         };
 
