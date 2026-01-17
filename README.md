@@ -23,7 +23,7 @@ This package includes sensible defaults so btca works out of the box:
 Install btca to your user profile:
 
 ```bash
-nix profile install github:dominicnunez/btca-nix
+nix profile add github:dominicnunez/btca-nix
 ```
 
 ## Flake Integration
@@ -84,7 +84,7 @@ Speed up builds by using the Cachix binary cache:
 
 ```bash
 # Install cachix if you haven't already
-nix profile install nixpkgs#cachix
+nix profile add nixpkgs#cachix
 
 # Enable the btca-nix cache
 cachix use btca-nix
