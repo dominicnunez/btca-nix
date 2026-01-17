@@ -11,16 +11,9 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Get the latest release version from GitHub
+# Get the latest release version from npm registry
 get_latest_version() {
-  local releases
-  releases=$(curl -s "https://api.github.com/repos/$REPO/releases")
-
-  # Filter for non-prerelease, non-draft releases and get the first one
-  echo "$releases" | jq -r '
-    [.[] | select(.prerelease == false and .draft == false)] |
-    .[0].tag_name // empty
-  ' | sed 's/^v//'
+  curl -s "https://registry.npmjs.org/${NPM_PACKAGE}/latest" | jq -r '.version // empty'
 }
 
 # Get the current version from version.json
