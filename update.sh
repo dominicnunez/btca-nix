@@ -27,15 +27,12 @@ hash_to_sri() {
   nix hash convert --hash-algo sha256 --to sri "$hash"
 }
 
-# Fetch hash for a specific platform
-# REPLACE: Update URL pattern to match your binary source
+# Fetch hash for npm tarball (single tarball for all platforms)
 fetch_hash() {
   local version="$1"
-  local platform="$2"
-  local ext="$3"
-  local url="https://github.com/$REPO/releases/download/v${version}/myapp-${platform}.${ext}"
+  local url="https://registry.npmjs.org/${NPM_PACKAGE}/-/${NPM_PACKAGE}-${version}.tgz"
 
-  echo -e "${YELLOW}Fetching hash for $platform...${NC}" >&2
+  echo -e "${YELLOW}Fetching hash for btca v${version}...${NC}" >&2
   local hash
   hash=$(nix-prefetch-url --type sha256 "$url" 2>/dev/null)
   hash_to_sri "$hash"
