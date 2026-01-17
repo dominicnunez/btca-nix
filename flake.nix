@@ -35,12 +35,12 @@
           default = {
             type = "app";
             program = "${pkgs.btca}/bin/btca";
-            meta.description = "REPLACE WITH YOUR APP DESCRIPTION";
+            meta.description = "Better Context CLI";
           };
           btca = {
             type = "app";
             program = "${pkgs.btca}/bin/btca";
-            meta.description = "REPLACE WITH YOUR APP DESCRIPTION";
+            meta.description = "Better Context CLI";
           };
         };
 
