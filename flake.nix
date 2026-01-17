@@ -34,7 +34,7 @@
         apps = {
           default = {
             type = "app";
-            program = "${pkgs.myapp}/bin/myapp";
+            program = "${pkgs.btca}/bin/btca";
             meta.description = "REPLACE WITH YOUR APP DESCRIPTION";
           };
           myapp = {
