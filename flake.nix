@@ -14,7 +14,7 @@
     }:
     let
       overlay = final: prev: {
-        myapp = final.callPackage ./package.nix { };
+        btca = final.callPackage ./package.nix { };
       };
     in
     flake-utils.lib.eachDefaultSystem (
