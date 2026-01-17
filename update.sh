@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# REPLACE: Update these variables for your repository
-REPO="my-org/myapp"
+# npm package name
+NPM_PACKAGE="btca"
 VERSION_FILE="$(dirname "$0")/version.json"
 
 # Colors for output
