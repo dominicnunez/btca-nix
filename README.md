@@ -47,6 +47,29 @@ Add btca to your flake-based configuration:
 }
 ```
 
+## Declarative Configuration
+
+btca can take Nix-provided defaults via the `userSettings` argument, which are merged into the runtime config at `~/.config/btca/btca.config.jsonc`.
+
+```nix
+{
+  outputs = { self, nixpkgs, btca-nix, ... }: {
+    packages.x86_64-linux.btca = btca-nix.packages.x86_64-linux.btca.override {
+      userSettings = {
+        provider = "openai";
+        model = "gpt-4.1-mini";
+      };
+    };
+  };
+}
+```
+
+Merge behavior:
+
+- On first run, btca writes the Nix defaults (including the `$schema` field) to `~/.config/btca/btca.config.jsonc`.
+- On subsequent runs, Nix defaults are merged into the existing config, but user edits take precedence and user-only keys are preserved.
+- The config is only rewritten when the Nix-provided settings change.
+
 ## Binary Cache
 
 Speed up builds by using the Cachix binary cache:
