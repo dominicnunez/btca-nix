@@ -54,11 +54,10 @@ let
           local link_target
           link_target="$(readlink "$symlink_path" 2>/dev/null || echo "")"
           # Match exact current path OR any older version of this package
-          # REPLACE: Change -myapp- to match your pname (e.g., -vscode-, -opencode-)
           if [[ "$link_target" == "$binary_path" ]] || \
-             [[ "$link_target" == /nix/store/*-myapp-* ]]; then
+             [[ "$link_target" == /nix/store/*-btca-* ]]; then
             rm -f "$symlink_path"
-            [[ "$verbose" == "1" ]] && echo "[myapp-nix] Removed symlink (Home Manager now manages myapp)" >&2
+            [[ "$verbose" == "1" ]] && echo "[btca-nix] Removed symlink (Home Manager now manages btca)" >&2
           fi
         fi
         return 0
@@ -75,7 +74,7 @@ let
       # Create or update symlink
       mkdir -p "$target_dir"
       ln -sf "$binary_path" "$symlink_path"
-      [[ "$verbose" == "1" ]] && echo "[myapp-nix] Created symlink: $symlink_path -> $binary_path" >&2
+      [[ "$verbose" == "1" ]] && echo "[btca-nix] Created symlink: $symlink_path -> $binary_path" >&2
     }
 
     # Run symlink management
