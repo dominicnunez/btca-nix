@@ -32,8 +32,8 @@ let
   wrapperScript = ''
     #!/usr/bin/env bash
 
-    # Verbose output (opt-in via MYAPP_NIX_VERBOSE=1)
-    verbose=''${MYAPP_NIX_VERBOSE:-0}
+    # Verbose output (opt-in via BTCA_NIX_VERBOSE=1)
+    verbose=''${BTCA_NIX_VERBOSE:-0}
 
     # Home Manager detection function
     is_home_manager_active() {
