@@ -91,7 +91,7 @@ let
   '';
 in
 stdenv.mkDerivation {
-  pname = "myapp";
+  pname = "btca";
   inherit version src;
 
   sourceRoot = ".";
