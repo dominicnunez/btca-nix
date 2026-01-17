@@ -27,9 +27,9 @@ let
   platform = platformMap.${system} or (throw "Unsupported system: ${system}");
   hash = hashes.${system} or (throw "No hash for system: ${system}");
 
-  # REPLACE: Update URL to match your binary source
+  # npm registry tarball URL (single tarball contains all platform binaries)
   src = fetchurl {
-    url = "https://github.com/my-org/myapp/releases/download/v${version}/myapp-${platform}.${assetExt}";
+    url = "https://registry.npmjs.org/btca/-/btca-${version}.tgz";
     inherit hash;
   };
 
