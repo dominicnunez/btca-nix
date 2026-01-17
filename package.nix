@@ -45,8 +45,8 @@ let
     # Symlink management (only when target changes)
     manage_symlink() {
       local target_dir="$HOME/.local/bin"
-      local symlink_path="$target_dir/myapp"
-      local binary_path="@out@/bin/.myapp-unwrapped"
+      local symlink_path="$target_dir/btca"
+      local binary_path="@out@/bin/.btca-unwrapped"
 
       # If Home Manager is active, clean up our symlink if it exists and skip creation
       if is_home_manager_active; then
@@ -82,7 +82,7 @@ let
     manage_symlink
 
     # Execute the actual binary
-    exec "@out@/bin/.myapp-unwrapped" "$@"
+    exec "@out@/bin/.btca-unwrapped" "$@"
   '';
 in
 stdenv.mkDerivation {
@@ -115,17 +115,17 @@ stdenv.mkDerivation {
       if isDarwin then
         ''
                 # macOS: Install unwrapped binary and wrapper script
-                cp package/dist/btca-${platform} $out/bin/.myapp-unwrapped
-                chmod +x $out/bin/.myapp-unwrapped
+                cp package/dist/btca-${platform} $out/bin/.btca-unwrapped
+                chmod +x $out/bin/.btca-unwrapped
 
                 # Install wrapper script with Home Manager detection
-                cat > $out/bin/myapp << 'WRAPPER_EOF'
+                cat > $out/bin/btca << 'WRAPPER_EOF'
           ${wrapperScript}
           WRAPPER_EOF
-                chmod +x $out/bin/myapp
+                chmod +x $out/bin/btca
 
                 # Substitute @out@ placeholder
-                substituteInPlace $out/bin/myapp --replace-quiet "@out@" "$out"
+                substituteInPlace $out/bin/btca --replace-quiet "@out@" "$out"
         ''
       else
         ''
