@@ -32,7 +32,7 @@ let
       lib.recursiveUpdate {
         "$schema" = "https://btca.dev/btca.schema.json";
         model = "claude-haiku-4-5";
-        provider = "opencode";
+        provider = "anthropic";
         resources = [ ];
       } userSettings
     )
