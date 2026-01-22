@@ -1,6 +1,6 @@
 # btca-nix
 
-Nix flake for [btca](https://btca.dev) (Better Context) - a CLI tool that helps AI agents get up-to-date context on libraries/technologies by searching actual source code.
+Nix flake for [btca](https://github.com/davis7dotsh/better-context) (Better Context) - a CLI tool that helps AI agents get up-to-date context on libraries/technologies by searching actual source code.
 
 ## Quick Install
 
@@ -14,7 +14,7 @@ This package includes sensible defaults so btca works out of the box:
 
 | Setting | Default |
 |---------|---------|
-| `model` | `claude-haiku-4-5` |
+| `model` | `opencode/big-pickle` |
 | `provider` | `opencode` |
 | `resources` | `[]` |
 
