@@ -80,26 +80,9 @@ Merge behavior:
 
 ## Binary Cache
 
-Speed up builds by using the Cachix binary cache:
+This flake uses [Garnix](https://garnix.io) for CI and binary caching. The `nixConfig` in `flake.nix` automatically configures the cache, so pre-built binaries are fetched without any manual setup.
 
-```bash
-# Install cachix if you haven't already
-nix profile add nixpkgs#cachix
-
-# Enable the btca-nix cache
-cachix use btca-nix
-```
-
-Or add manually to your Nix configuration:
-
-```nix
-{
-  nix.settings = {
-    substituters = [ "https://btca-nix.cachix.org" ];
-    trusted-public-keys = [ "btca-nix.cachix.org-1:A4Ftfyl8BCpQ9OpwuHl4ILxLWMpUcyYnXg57ImNNOw0=" ];
-  };
-}
-```
+If prompted to allow configuration from the flake, answer yes or add `accept-flake-config = true` to your Nix configuration.
 
 ## About btca
 
