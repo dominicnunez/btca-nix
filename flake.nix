@@ -65,5 +65,9 @@
     )
     // {
       overlays.default = overlay;
+      nixosModules.default = import ./module.nix {
+        inherit self;
+        lib = nixpkgs.lib;
+      };
     };
 }
